@@ -1,14 +1,20 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Bot, User } from "lucide-react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Bot, User, File as FileIcon } from "lucide-react";
+import Image from "next/image";
 
 export interface Message {
   id: string;
   sender: "user" | "ai";
   text: string;
   timestamp: Date;
+  file?: {
+    dataUri: string;
+    type: string;
+    name: string;
+  };
 }
 
 interface ChatMessageProps {
@@ -40,7 +46,30 @@ export function ChatMessage({ message }: ChatMessageProps) {
             : "bg-card text-card-foreground rounded-bl-none"
         )}
       >
-        <p className="text-sm whitespace-pre-wrap">{message.text}</p>
+        {message.file && (
+          <div className="mb-2">
+            {message.file.type.startsWith("image/") ? (
+                <Image
+                  src={message.file.dataUri}
+                  alt={message.file.name}
+                  width={300}
+                  height={300}
+                  className="rounded-md max-w-full h-auto object-contain"
+                />
+            ) : (
+              <div className={cn(
+                  "p-2 rounded-md flex items-center gap-2",
+                  isUser ? "bg-primary-foreground/10" : "bg-muted"
+                )}>
+                <FileIcon className="h-5 w-5 flex-shrink-0" />
+                <span className="text-sm font-mono truncate">{message.file.name}</span>
+              </div>
+            )}
+          </div>
+        )}
+        {message.text && (
+          <p className="text-sm whitespace-pre-wrap">{message.text}</p>
+        )}
         <p className={cn(
             "text-xs mt-1",
             isUser ? "text-primary-foreground/70 text-right" : "text-muted-foreground text-left"

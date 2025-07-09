@@ -5,13 +5,13 @@ import type React from "react";
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { SendHorizontal, Loader2, Mic, MicOff, StopCircle } from "lucide-react";
+import { SendHorizontal, Loader2, Mic, MicOff, StopCircle, Paperclip, X, File as FileIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { transcribeAudio } from "@/ai/flows/transcribe-audio-flow";
 
 interface ChatInputProps {
-  onSendMessage: (message: string) => Promise<void>;
+  onSendMessage: (message: string, file?: { dataUri: string; type: string; name: string }) => Promise<void>;
   isLoading: boolean; // This is for AI response loading
 }
 
@@ -23,16 +23,56 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
   const [isTranscribing, setIsTranscribing] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
+  const [selectedFile, setSelectedFile] = useState<{ dataUri: string; type: string; name: string } | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!inputValue.trim() || isLoading || isRecording || isTranscribing) return;
-    await onSendMessage(inputValue.trim());
+    if ((!inputValue.trim() && !selectedFile) || isLoading || isRecording || isTranscribing) return;
+    await onSendMessage(inputValue.trim(), selectedFile ?? undefined);
     setInputValue("");
+    setSelectedFile(null);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value);
+  };
+  
+  const handleAttachmentClick = () => {
+    if (isLoading || isRecording || isTranscribing) return;
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.size > 4 * 1024 * 1024) { // Limit file size to 4MB for Gemini Flash
+          toast({
+              variant: "destructive",
+              title: "File is too large",
+              description: "Please select a file smaller than 4MB.",
+          });
+          return;
+      }
+      
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setSelectedFile({
+          dataUri: reader.result as string,
+          type: file.type,
+          name: file.name,
+        });
+      };
+      reader.onerror = () => {
+        toast({ variant: "destructive", title: "Error reading file" });
+      };
+      reader.readAsDataURL(file);
+    }
+    if (event.target) event.target.value = '';
+  };
+  
+  const removeSelectedFile = () => {
+    setSelectedFile(null);
   };
 
   const requestMicrophonePermission = async () => {
@@ -88,15 +128,12 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
       });
       const permissionGranted = await requestMicrophonePermission();
       if (!permissionGranted) return;
-      // If permission was just granted, user needs to click again. Better UX would be to auto-start.
-      // For now, let's stick to requiring another click if permission was just granted.
       toast({ title: "الإذن ممنوح", description: "انقر على زر الميكروفون مرة أخرى لبدء التسجيل."});
       return;
     }
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      // Try common MIME types, browser will pick one
       const mimeTypes = ['audio/webm;codecs=opus', 'audio/ogg;codecs=opus', 'audio/aac', 'audio/wav', 'audio/webm'];
       const supportedMimeType = mimeTypes.find(type => MediaRecorder.isTypeSupported(type));
 
@@ -116,7 +153,6 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
 
       mediaRecorderRef.current.onstop = async () => {
         const audioBlob = new Blob(audioChunksRef.current, { type: supportedMimeType });
-         // Release the microphone
         stream.getTracks().forEach(track => track.stop());
 
         if (audioBlob.size === 0) {
@@ -144,7 +180,7 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
             toast({ variant: 'destructive', title: "خطأ في تحويل الصوت", description: "حدث خطأ أثناء محاولة تحويل الصوت إلى نص. حاول مرة أخرى." });
           } finally {
             setIsTranscribing(false);
-            setInputValue(""); // Clear input field after attempting to send
+            setInputValue("");
           }
         };
         reader.onerror = () => {
@@ -172,9 +208,8 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
 
   const stopRecording = () => {
     if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop(); // onstop handler will do the rest
+      mediaRecorderRef.current.stop();
       setIsRecording(false);
-      // Toast for stopping and processing is handled in onstop and subsequent async operations
     }
   };
 
@@ -187,14 +222,12 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
         if (microphoneState === 'granted') {
             startRecording();
         } else {
-             // Request permission if not already granted or if denied previously (allow re-request)
             const permissionGranted = await requestMicrophonePermission();
             if (permissionGranted) {
                  toast({
                     title: "الإذن ممنوح",
                     description: "انقر على زر الميكروفون مرة أخرى لبدء التسجيل.",
                 });
-                // User will need to click again to start recording
             }
         }
     }
@@ -245,51 +278,87 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
 
   return (
     <TooltipProvider>
-      <form
-        onSubmit={handleSubmit}
-        className="flex items-center gap-3 p-4 border-t bg-background sticky bottom-0"
-      >
-        <Input
-          type="text"
-          placeholder={isRecording ? "جاري التسجيل..." : (isTranscribing ? "جاري تحويل الصوت..." : "اكتب رسالتك هنا...")}
-          value={inputValue}
-          onChange={handleInputChange}
-          disabled={isLoading || isRecording || isTranscribing}
-          className="flex-grow rounded-full px-4 py-2 focus-visible:ring-1 focus-visible:ring-ring"
-          aria-label="Chat message input"
-        />
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              type="button"
-              size="icon"
-              variant="ghost"
-              onClick={onMicButtonClick}
-              disabled={isMicButtonDisabled}
-              className="rounded-full"
-              aria-label={micButtonTooltip}
-            >
-              {micButtonIcon}
+      <div className="flex flex-col gap-2 p-4 border-t bg-background sticky bottom-0">
+        {selectedFile && (
+          <div className="p-2 bg-muted rounded-md flex items-center gap-2 text-sm">
+            {selectedFile.type.startsWith('image/') ? (
+              <img src={selectedFile.dataUri} alt="Preview" className="h-10 w-10 rounded-md object-cover" />
+            ) : (
+              <div className="h-10 w-10 bg-secondary rounded-md flex items-center justify-center">
+                <FileIcon className="h-6 w-6 text-secondary-foreground" />
+              </div>
+            )}
+            <span className="flex-grow truncate">{selectedFile.name}</span>
+            <Button type="button" variant="ghost" size="icon" className="h-7 w-7 rounded-full flex-shrink-0" onClick={removeSelectedFile}>
+              <X className="h-4 w-4" />
             </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>{micButtonTooltip}</p>
-          </TooltipContent>
-        </Tooltip>
-        <Button
-          type="submit"
-          size="icon"
-          disabled={isLoading || !inputValue.trim() || isRecording || isTranscribing}
-          className="rounded-full bg-primary hover:bg-primary/90 text-primary-foreground"
-          aria-label="Send message"
+          </div>
+        )}
+        <form
+          onSubmit={handleSubmit}
+          className="flex items-center gap-2 w-full"
         >
-          {isLoading ? ( // This isLoading is for AI chat response, not transcription
-            <Loader2 className="h-5 w-5 animate-spin" />
-          ) : (
-            <SendHorizontal className="h-5 w-5" />
-          )}
-        </Button>
-      </form>
+          <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*,application/pdf,text/*,.json,.csv" />
+          <Input
+            type="text"
+            placeholder={isRecording ? "جاري التسجيل..." : (isTranscribing ? "جاري تحويل الصوت..." : "اكتب رسالتك أو أرفق ملفًا...")}
+            value={inputValue}
+            onChange={handleInputChange}
+            disabled={isLoading || isRecording || isTranscribing}
+            className="flex-grow rounded-full px-4 py-2 focus-visible:ring-1 focus-visible:ring-ring"
+            aria-label="Chat message input"
+          />
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                type="button"
+                size="icon"
+                variant="ghost"
+                onClick={handleAttachmentClick}
+                disabled={isLoading || isRecording || isTranscribing}
+                className="rounded-full"
+                aria-label="Attach file"
+              >
+                <Paperclip className="h-5 w-5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Attach file (Max 4MB)</p>
+            </TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                type="button"
+                size="icon"
+                variant="ghost"
+                onClick={onMicButtonClick}
+                disabled={isMicButtonDisabled || !!selectedFile}
+                className="rounded-full"
+                aria-label={micButtonTooltip}
+              >
+                {micButtonIcon}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{!!selectedFile ? "Recording disabled while file is attached" : micButtonTooltip}</p>
+            </TooltipContent>
+          </Tooltip>
+          <Button
+            type="submit"
+            size="icon"
+            disabled={isLoading || (!inputValue.trim() && !selectedFile) || isRecording || isTranscribing}
+            className="rounded-full bg-primary hover:bg-primary/90 text-primary-foreground"
+            aria-label="Send message"
+          >
+            {isLoading ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              <SendHorizontal className="h-5 w-5" />
+            )}
+          </Button>
+        </form>
+      </div>
     </TooltipProvider>
   );
 }

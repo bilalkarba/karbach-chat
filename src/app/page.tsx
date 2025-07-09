@@ -28,18 +28,24 @@ export default function DardashaAIChatPage() {
     scrollToBottom();
   }, [messages]);
 
-  const handleSendMessage = async (text: string) => {
+  const handleSendMessage = async (text: string, file?: { dataUri: string; type: string; name: string }) => {
+    if (!text.trim() && !file) return;
+
     const userMessage: Message = {
       id: crypto.randomUUID(),
       sender: "user",
       text,
       timestamp: new Date(),
+      file,
     };
     setMessages((prevMessages) => [...prevMessages, userMessage]);
     setIsLoading(true);
 
     try {
-      const aiResponse = await callGeminiApi({ message: text });
+      const aiResponse = await callGeminiApi({ 
+        message: text,
+        fileDataUri: file?.dataUri,
+       });
       const aiMessage: Message = {
         id: crypto.randomUUID(),
         sender: "ai",

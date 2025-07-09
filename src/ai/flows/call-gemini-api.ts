@@ -16,6 +16,12 @@ import { z } from 'genkit';
 
 const CallGeminiApiInputSchema = z.object({
   message: z.string().describe('The message from the user to be sent to the Gemini API.'),
+  fileDataUri: z
+    .string()
+    .optional()
+    .describe(
+      "An optional file (e.g., an image) as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
+    ),
 });
 export type CallGeminiApiInput = z.infer<typeof CallGeminiApiInputSchema>;
 
@@ -32,7 +38,16 @@ const callGeminiApiPrompt = ai.definePrompt({
   name: 'callGeminiApiPrompt',
   input: { schema: CallGeminiApiInputSchema },
   output: { schema: CallGeminiApiOutputSchema },
-  prompt: `{{message}}`,
+  prompt: `Based on the user's message and the provided file (if any), provide a helpful response.
+If a file is provided, analyze its content.
+
+User message: {{{message}}}
+
+{{#if fileDataUri}}
+File content:
+{{media url=fileDataUri}}
+{{/if}}
+`,
 });
 
 const callGeminiApiFlow = ai.defineFlow(
