@@ -80,7 +80,7 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
       if (microphoneState === 'denied') {
          toast({
           variant: 'destructive',
-          title: "تم رفض الوصول إلى الميكروفون سابقًا",
+          title: "تم رفض الوصول إلى الميكروفون",
           description: "يرجى تمكين أذونات الميكروفون في إعدادات المتصفح.",
         });
       }
@@ -239,7 +239,7 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
   let isMicButtonDisabled = isLoading || isTranscribing;
 
   if (isRecording) {
-    micButtonIcon = <StopCircle className="h-5 w-5 text-destructive" />;
+    micButtonIcon = <StopCircle className="h-5 w-5 text-destructive animate-pulse" />;
     micButtonTooltip = "إيقاف التسجيل والإرسال";
   } else if (isTranscribing) {
     micButtonIcon = <Loader2 className="h-5 w-5 animate-spin text-primary" />;
@@ -254,7 +254,7 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
         isMicButtonDisabled = true;
         break;
       case 'granted':
-        micButtonIcon = <Mic className="h-5 w-5 text-primary" />;
+        micButtonIcon = <Mic className="h-5 w-5" />;
         micButtonTooltip = "بدء التسجيل الصوتي";
         break;
       case 'denied':
@@ -262,7 +262,7 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
         micButtonTooltip = "تم رفض الوصول إلى الميكروفون. انقر لمنح الإذن.";
         break;
       case 'unsupported':
-        micButtonIcon = <MicOff className="h-5 w-5 text-destructive" />;
+        micButtonIcon = <MicOff className="h-5 w-5 text-muted-foreground" />;
         micButtonTooltip = "الميكروفون غير مدعوم أو اتصال غير آمن.";
         isMicButtonDisabled = true;
         break;
@@ -278,9 +278,9 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
 
   return (
     <TooltipProvider>
-      <div className="flex flex-col gap-2 p-4 border-t bg-background sticky bottom-0">
+      <div className="flex flex-col gap-2 p-3 border-t bg-background sticky bottom-0">
         {selectedFile && (
-          <div className="p-2 bg-muted rounded-md flex items-center gap-2 text-sm">
+          <div className="p-2 bg-muted rounded-lg flex items-center gap-2 text-sm border">
             {selectedFile.type.startsWith('image/') ? (
               <img src={selectedFile.dataUri} alt="Preview" className="h-10 w-10 rounded-md object-cover" />
             ) : (
@@ -288,7 +288,7 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
                 <FileIcon className="h-6 w-6 text-secondary-foreground" />
               </div>
             )}
-            <span className="flex-grow truncate">{selectedFile.name}</span>
+            <span className="flex-grow truncate font-medium text-foreground/80">{selectedFile.name}</span>
             <Button type="button" variant="ghost" size="icon" className="h-7 w-7 rounded-full flex-shrink-0" onClick={removeSelectedFile}>
               <X className="h-4 w-4" />
             </Button>
@@ -298,14 +298,13 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
           onSubmit={handleSubmit}
           className="flex items-center gap-2 w-full"
         >
-          <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*,application/pdf,text/*,.json,.csv" />
           <Input
             type="text"
             placeholder={isRecording ? "جاري التسجيل..." : (isTranscribing ? "جاري تحويل الصوت..." : "اكتب رسالتك أو أرفق ملفًا...")}
             value={inputValue}
             onChange={handleInputChange}
             disabled={isLoading || isRecording || isTranscribing}
-            className="flex-grow rounded-full px-4 py-2 focus-visible:ring-1 focus-visible:ring-ring"
+            className="flex-grow h-11 rounded-full px-5 text-base"
             aria-label="Chat message input"
           />
           <Tooltip>
@@ -316,7 +315,7 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
                 variant="ghost"
                 onClick={handleAttachmentClick}
                 disabled={isLoading || isRecording || isTranscribing}
-                className="rounded-full"
+                className="rounded-full h-11 w-11 flex-shrink-0"
                 aria-label="Attach file"
               >
                 <Paperclip className="h-5 w-5" />
@@ -334,7 +333,7 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
                 variant="ghost"
                 onClick={onMicButtonClick}
                 disabled={isMicButtonDisabled || !!selectedFile}
-                className="rounded-full"
+                className="rounded-full h-11 w-11 flex-shrink-0"
                 aria-label={micButtonTooltip}
               >
                 {micButtonIcon}
@@ -348,7 +347,7 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
             type="submit"
             size="icon"
             disabled={isLoading || (!inputValue.trim() && !selectedFile) || isRecording || isTranscribing}
-            className="rounded-full bg-primary hover:bg-primary/90 text-primary-foreground"
+            className="rounded-full bg-primary hover:bg-primary/90 text-primary-foreground h-11 w-11 flex-shrink-0"
             aria-label="Send message"
           >
             {isLoading ? (

@@ -27,23 +27,23 @@ export function ChatMessage({ message }: ChatMessageProps) {
   return (
     <div
       className={cn(
-        "flex items-end gap-2 mb-4 animate-fadeInSlideUp",
+        "flex items-start gap-4 animate-fadeInSlideUp",
         isUser ? "justify-end" : "justify-start"
       )}
     >
       {!isUser && (
-        <Avatar className="h-8 w-8 self-start">
-          <AvatarFallback className="bg-accent text-accent-foreground">
-            <Bot size={18} />
+        <Avatar className="h-9 w-9 border">
+          <AvatarFallback className="bg-primary text-primary-foreground">
+            <Bot size={20} />
           </AvatarFallback>
         </Avatar>
       )}
       <div
         className={cn(
-          "max-w-[70%] rounded-lg p-3 shadow-md",
+          "max-w-[75%] rounded-lg p-3 px-4 shadow-sm",
           isUser
             ? "bg-primary text-primary-foreground rounded-br-none"
-            : "bg-card text-card-foreground rounded-bl-none"
+            : "bg-card text-card-foreground border rounded-bl-none"
         )}
       >
         {message.file && (
@@ -68,19 +68,19 @@ export function ChatMessage({ message }: ChatMessageProps) {
           </div>
         )}
         {message.text && (
-          <p className="text-sm whitespace-pre-wrap">{message.text}</p>
+          <p className="text-sm whitespace-pre-wrap leading-relaxed">{message.text}</p>
         )}
         <p className={cn(
-            "text-xs mt-1",
-            isUser ? "text-primary-foreground/70 text-right" : "text-muted-foreground text-left"
+            "text-xs mt-2 pt-1 border-t",
+            isUser ? "border-primary-foreground/20 text-primary-foreground/70 text-right" : "border-border/50 text-muted-foreground text-left"
           )}>
           {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
         </p>
       </div>
       {isUser && (
-         <Avatar className="h-8 w-8 self-start">
-          <AvatarFallback className="bg-secondary text-secondary-foreground">
-            <User size={18} />
+         <Avatar className="h-9 w-9 border">
+           <AvatarFallback className="bg-secondary text-secondary-foreground">
+            <User size={20} />
           </AvatarFallback>
         </Avatar>
       )}

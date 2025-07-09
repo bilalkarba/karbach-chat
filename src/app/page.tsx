@@ -87,34 +87,36 @@ export default function DardashaAIChatPage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
-      <header className="p-4 border-b shadow-md bg-card">
+      <header className="p-4 border-b shadow-sm bg-card">
         <div className="container mx-auto flex items-center justify-between">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
                 <Bot className="h-8 w-8 text-primary" />
                 <h1 className="text-2xl font-bold text-foreground">Dardasha AI</h1>
             </div>
             <a href="https://github.com/Firebase-Studio-Apps/Dardasha-AI-pws7" target="_blank" rel="noopener noreferrer" aria-label="GitHub Repository">
-                <Github className="h-7 w-7 text-foreground hover:text-primary transition-colors"/>
+                <Github className="h-6 w-6 text-foreground hover:text-primary transition-colors"/>
             </a>
         </div>
       </header>
       
       <main className="flex-grow overflow-hidden flex flex-col container mx-auto max-w-4xl w-full p-4">
-        <Card className="flex-grow flex flex-col shadow-2xl rounded-lg overflow-hidden border">
-          <CardHeader className="border-b bg-muted/50">
-            <CardTitle className="text-lg text-center text-primary">Conversation</CardTitle>
+        <Card className="flex-grow flex flex-col shadow-lg rounded-xl overflow-hidden border">
+          <CardHeader className="border-b bg-muted/30">
+            <CardTitle className="text-lg text-center font-semibold text-primary">Conversation</CardTitle>
           </CardHeader>
           <CardContent className="flex-grow p-0 overflow-hidden">
-            <ScrollArea className="h-full p-4" ref={scrollAreaRef}>
-              {messages.map((msg) => (
-                <ChatMessage key={msg.id} message={msg} />
-              ))}
+            <ScrollArea className="h-full p-6" ref={scrollAreaRef}>
+              <div className="space-y-6">
+                {messages.map((msg) => (
+                  <ChatMessage key={msg.id} message={msg} />
+                ))}
+              </div>
             </ScrollArea>
           </CardContent>
           <ChatInput onSendMessage={handleSendMessage} isLoading={isLoading} />
         </Card>
       </main>
-       <footer className="p-4 mt-auto">
+       <footer className="py-6 mt-auto">
         <div className="container mx-auto text-center text-sm text-muted-foreground">
           <p>&copy; {new Date().getFullYear()} Dardasha AI. Built with Firebase Studio.</p>
         </div>
