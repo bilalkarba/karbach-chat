@@ -7,7 +7,7 @@ import { ChatInput } from "@/components/chat-input";
 import { ChatMessage, type Message } from "@/components/chat-message";
 import { callGeminiApi } from "@/ai/flows/call-gemini-api";
 import { useToast } from "@/hooks/use-toast";
-import { Bot } from "lucide-react";
+import { Bot, Github } from "lucide-react";
 
 export default function DardashaAIChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -86,17 +86,22 @@ export default function DardashaAIChatPage() {
 
 
   return (
-    <div className="flex flex-col h-screen bg-background">
-      <header className="p-4 border-b shadow-sm">
-        <div className="container mx-auto flex items-center gap-2">
-          <Bot className="h-8 w-8 text-primary" />
-          <h1 className="text-2xl font-bold text-foreground">Dardasha AI</h1>
+    <div className="flex flex-col min-h-screen bg-background">
+      <header className="p-4 border-b shadow-md bg-card">
+        <div className="container mx-auto flex items-center justify-between">
+            <div className="flex items-center gap-2">
+                <Bot className="h-8 w-8 text-primary" />
+                <h1 className="text-2xl font-bold text-foreground">Dardasha AI</h1>
+            </div>
+            <a href="https://github.com/Firebase-Studio-Apps/Dardasha-AI-pws7" target="_blank" rel="noopener noreferrer" aria-label="GitHub Repository">
+                <Github className="h-7 w-7 text-foreground hover:text-primary transition-colors"/>
+            </a>
         </div>
       </header>
       
-      <main className="flex-grow overflow-hidden flex flex-col container mx-auto max-w-3xl w-full p-0 md:p-4">
-        <Card className="flex-grow flex flex-col shadow-xl rounded-none md:rounded-lg overflow-hidden">
-          <CardHeader className="border-b">
+      <main className="flex-grow overflow-hidden flex flex-col container mx-auto max-w-4xl w-full p-4">
+        <Card className="flex-grow flex flex-col shadow-2xl rounded-lg overflow-hidden border">
+          <CardHeader className="border-b bg-muted/50">
             <CardTitle className="text-lg text-center text-primary">Conversation</CardTitle>
           </CardHeader>
           <CardContent className="flex-grow p-0 overflow-hidden">
@@ -109,6 +114,11 @@ export default function DardashaAIChatPage() {
           <ChatInput onSendMessage={handleSendMessage} isLoading={isLoading} />
         </Card>
       </main>
+       <footer className="p-4 mt-auto">
+        <div className="container mx-auto text-center text-sm text-muted-foreground">
+          <p>&copy; {new Date().getFullYear()} Dardasha AI. Built with Firebase Studio.</p>
+        </div>
+      </footer>
     </div>
   );
 }
