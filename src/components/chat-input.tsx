@@ -298,6 +298,13 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
           onSubmit={handleSubmit}
           className="flex items-center gap-2 w-full"
         >
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            className="hidden"
+            accept="image/*,application/pdf,text/plain"
+          />
           <Input
             type="text"
             placeholder={isRecording ? "جاري التسجيل..." : (isTranscribing ? "جاري تحويل الصوت..." : "اكتب رسالتك أو أرفق ملفًا...")}
@@ -361,3 +368,5 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
     </TooltipProvider>
   );
 }
+
+    
