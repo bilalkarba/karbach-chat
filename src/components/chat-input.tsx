@@ -170,8 +170,7 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
           try {
             const result = await transcribeAudio({ audioDataUri });
             if (result.transcribedText && result.transcribedText.trim() !== "") {
-              setInputValue(result.transcribedText.trim());
-              toast({ title: "تم تحويل الصوت إلى نص", description: "يمكنك الآن مراجعة النص وإرساله." });
+              setInputValue((prev) => (prev ? prev + " " : "") + result.transcribedText.trim());
             } else {
               toast({ variant: 'default', title: "لم يتمكن من فهم الصوت", description: "لم يتم العثور على نص في التسجيل أو كان الصوت غير واضح." });
             }
@@ -367,7 +366,3 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
     </TooltipProvider>
   );
 }
-
-    
-
-    
