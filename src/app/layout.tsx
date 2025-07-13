@@ -10,7 +10,7 @@ const geistSans = Geist({ // Changed from Inter to Geist
 
 
 export const metadata: Metadata = {
-  title: 'Dardasha AI', // Updated app title
+  title: 'Soso AI', // Updated app title
   description: 'A simple AI Chatbot built with Next.js and Gemini API', // Updated app description
 };
 
