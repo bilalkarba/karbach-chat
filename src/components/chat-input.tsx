@@ -170,8 +170,8 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
           try {
             const result = await transcribeAudio({ audioDataUri });
             if (result.transcribedText && result.transcribedText.trim() !== "") {
-              await onSendMessage(result.transcribedText.trim());
-              toast({ title: "تم إرسال الرسالة من الصوت" });
+              setInputValue(result.transcribedText.trim());
+              toast({ title: "تم تحويل الصوت إلى نص", description: "يمكنك الآن مراجعة النص وإرساله." });
             } else {
               toast({ variant: 'default', title: "لم يتمكن من فهم الصوت", description: "لم يتم العثور على نص في التسجيل أو كان الصوت غير واضح." });
             }
@@ -180,7 +180,6 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
             toast({ variant: 'destructive', title: "خطأ في تحويل الصوت", description: "حدث خطأ أثناء محاولة تحويل الصوت إلى نص. حاول مرة أخرى." });
           } finally {
             setIsTranscribing(false);
-            setInputValue("");
           }
         };
         reader.onerror = () => {
@@ -194,7 +193,7 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
 
       mediaRecorderRef.current.start();
       setIsRecording(true);
-      toast({ title: "بدء التسجيل...", description: "انقر على زر الإيقاف لإنهاء التسجيل والإرسال." });
+      toast({ title: "بدء التسجيل...", description: "انقر على زر الإيقاف لإنهاء التسجيل." });
     } catch (error) {
         console.error("Error starting recording:", error);
         toast({
@@ -240,7 +239,7 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
 
   if (isRecording) {
     micButtonIcon = <StopCircle className="h-5 w-5 text-destructive animate-pulse" />;
-    micButtonTooltip = "إيقاف التسجيل والإرسال";
+    micButtonTooltip = "إيقاف التسجيل";
   } else if (isTranscribing) {
     micButtonIcon = <Loader2 className="h-5 w-5 animate-spin text-primary" />;
     micButtonTooltip = "جاري تحويل الصوت...";
@@ -368,5 +367,7 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
     </TooltipProvider>
   );
 }
+
+    
 
     
