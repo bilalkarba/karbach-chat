@@ -32,7 +32,7 @@ const transcribeAudioPrompt = ai.definePrompt({
   name: 'transcribeAudioPrompt',
   input: {schema: TranscribeAudioInputSchema},
   output: {schema: TranscribeAudioOutputSchema},
-  model: 'googleai/gemini-1.5-flash-latest', // Explicitly using a model good for multimodal inputs
+  model: 'googleai/gemini-2.0-flash', // Using the same model as configured in genkit.ts
   prompt: `Please transcribe the following audio to text. Respond with only the transcribed text. Ensure the transcription is accurate.
 Audio: {{media url=audioDataUri}}`,
 });
