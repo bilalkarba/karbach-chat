@@ -78,7 +78,7 @@ export default function DardashaAIChatPage() {
       {
         id: crypto.randomUUID(),
         sender: "ai",
-        text: "Hello! I'm Soso AI. How can I help you today?",
+        text: "Hello! I'm Karbach Chat. How can I help you today?",
         timestamp: new Date(),
       },
     ]);
@@ -91,9 +91,9 @@ export default function DardashaAIChatPage() {
         <div className="container mx-auto flex items-center justify-between">
             <div className="flex items-center gap-3">
                 <Bot className="h-8 w-8 text-primary" />
-                <h1 className="text-2xl font-bold text-foreground">Soso AI</h1>
+                <h1 className="text-2xl font-bold text-foreground">Karbach Chat</h1>
             </div>
-            <a href="https://github.com/soumia-sou" target="_blank" rel="noopener noreferrer" aria-label="GitHub Repository">
+            <a href="https://github.com/karbach" target="_blank" rel="noopener noreferrer" aria-label="GitHub Repository">
                 <Github className="h-6 w-6 text-foreground hover:text-primary transition-colors"/>
             </a>
         </div>
@@ -118,7 +118,7 @@ export default function DardashaAIChatPage() {
       </main>
        <footer className="py-6 mt-auto">
         <div className="container mx-auto text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} Soso AI. Created by soumia.</p>
+          <p>&copy; {new Date().getFullYear()} Karbach Chat. Created by Karbach.</p>
         </div>
       </footer>
     </div>
