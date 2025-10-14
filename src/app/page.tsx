@@ -18,24 +18,34 @@ export default function DardashaAIChatPage() {
   const [theme, setTheme] = useState('light');
 
    useEffect(() => {
+    // Set initial theme from localStorage
     const savedTheme = localStorage.getItem('theme') || 'light';
     setTheme(savedTheme);
-    if (savedTheme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
+
+    // Add initial greeting message
+    setMessages([
+      {
+        id: crypto.randomUUID(),
+        sender: "ai",
+        text: "Hello! I'm Karbach Chat. How can I help you today?",
+        timestamp: new Date(),
+      },
+    ]);
   }, []);
 
-  const toggleTheme = () => {
-    const newTheme = theme === 'light' ? 'dark' : 'light';
-    setTheme(newTheme);
-    localStorage.setItem('theme', newTheme);
-    if (newTheme === 'dark') {
+  useEffect(() => {
+    // Apply theme to the document
+    if (theme === 'dark') {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
     }
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+
+  const toggleTheme = () => {
+    setTheme(prevTheme => prevTheme === 'light' ? 'dark' : 'light');
   };
 
 
@@ -95,18 +105,6 @@ export default function DardashaAIChatPage() {
       setIsLoading(false);
     }
   };
-  
-  // Effect to add an initial greeting message from the AI
-  useEffect(() => {
-    setMessages([
-      {
-        id: crypto.randomUUID(),
-        sender: "ai",
-        text: "Hello! I'm Karbach Chat. How can I help you today?",
-        timestamp: new Date(),
-      },
-    ]);
-  }, []);
 
 
   return (
