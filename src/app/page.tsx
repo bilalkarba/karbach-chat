@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Bot, Github } from "lucide-react";
 import { ThemeToggleButton } from "@/components/theme-toggle-button";
 
-export default function DardashaAIChatPage() {
+export default function KarbachChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -19,7 +19,7 @@ export default function DardashaAIChatPage() {
 
    useEffect(() => {
     // Set initial theme from localStorage
-    const savedTheme = localStorage.getItem('theme') || 'light';
+    const savedTheme = typeof window !== 'undefined' ? localStorage.getItem('theme') || 'light' : 'light';
     setTheme(savedTheme);
 
     // Add initial greeting message
@@ -40,7 +40,9 @@ export default function DardashaAIChatPage() {
     } else {
       document.documentElement.classList.remove('dark');
     }
-    localStorage.setItem('theme', theme);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('theme', theme);
+    }
   }, [theme]);
 
 
@@ -108,8 +110,8 @@ export default function DardashaAIChatPage() {
 
 
   return (
-    <div className="flex flex-col min-h-screen bg-background">
-      <header className="p-4 border-b shadow-sm bg-card">
+    <div className="flex flex-col h-screen bg-background">
+      <header className="p-4 border-b shadow-sm bg-card flex-shrink-0">
         <div className="container mx-auto flex items-center justify-between">
             <div className="flex items-center gap-3">
                 <Bot className="h-8 w-8 text-primary" />
@@ -124,9 +126,9 @@ export default function DardashaAIChatPage() {
         </div>
       </header>
       
-      <main className="flex-grow overflow-hidden flex flex-col container mx-auto max-w-4xl w-full p-4">
+      <main className="flex-grow flex flex-col container mx-auto max-w-4xl w-full p-4 overflow-hidden">
         <Card className="flex-grow flex flex-col shadow-lg rounded-xl overflow-hidden border">
-          <CardHeader className="border-b bg-muted/30">
+          <CardHeader className="border-b bg-muted/30 flex-shrink-0">
             <CardTitle className="text-lg text-center font-semibold text-primary">Conversation</CardTitle>
           </CardHeader>
           <CardContent className="flex-grow p-0 overflow-hidden">
@@ -138,10 +140,12 @@ export default function DardashaAIChatPage() {
               </div>
             </ScrollArea>
           </CardContent>
-          <ChatInput onSendMessage={handleSendMessage} isLoading={isLoading} />
+          <div className="flex-shrink-0">
+            <ChatInput onSendMessage={handleSendMessage} isLoading={isLoading} />
+          </div>
         </Card>
       </main>
-       <footer className="py-6 mt-auto">
+       <footer className="py-6 flex-shrink-0">
         <div className="container mx-auto text-center text-sm text-muted-foreground">
           <p>&copy; {new Date().getFullYear()} Karbach Chat. Created by Karbach.</p>
         </div>
