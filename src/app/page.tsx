@@ -8,12 +8,36 @@ import { ChatMessage, type Message } from "@/components/chat-message";
 import { callGeminiApi } from "@/ai/flows/call-gemini-api";
 import { useToast } from "@/hooks/use-toast";
 import { Bot, Github } from "lucide-react";
+import { ThemeToggleButton } from "@/components/theme-toggle-button";
 
 export default function DardashaAIChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const [theme, setTheme] = useState('light');
+
+   useEffect(() => {
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    setTheme(savedTheme);
+    if (savedTheme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+    localStorage.setItem('theme', newTheme);
+    if (newTheme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  };
+
 
   const scrollToBottom = () => {
     if (scrollAreaRef.current) {
@@ -93,9 +117,12 @@ export default function DardashaAIChatPage() {
                 <Bot className="h-8 w-8 text-primary" />
                 <h1 className="text-2xl font-bold text-foreground">Karbach Chat</h1>
             </div>
-            <a href="https://github.com/karbach" target="_blank" rel="noopener noreferrer" aria-label="GitHub Repository">
-                <Github className="h-6 w-6 text-foreground hover:text-primary transition-colors"/>
-            </a>
+            <div className="flex items-center gap-2">
+                 <ThemeToggleButton theme={theme} onToggle={toggleTheme} />
+                <a href="https://github.com/karbach" target="_blank" rel="noopener noreferrer" aria-label="GitHub Repository">
+                    <Github className="h-6 w-6 text-foreground hover:text-primary transition-colors"/>
+                </a>
+            </div>
         </div>
       </header>
       
